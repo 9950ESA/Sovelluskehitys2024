@@ -26,7 +26,7 @@ namespace Sovelluskehitys2024
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k5000833\\Documents\\testitietokanta.mdf;Integrated Security=True;Connect Timeout=30";
+            string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2200423\\Documents\\testitietokanta.mdf;Integrated Security=True;Connect Timeout=30";
             SqlConnection yhteys = new SqlConnection(polku);
             yhteys.Open();
 
