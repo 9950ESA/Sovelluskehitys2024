@@ -24,7 +24,7 @@ namespace Sovelluskehitys2024
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void PaivitaDataGrid(object sender, RoutedEventArgs e)
         {
             string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2200423\\Documents\\testitietokanta.mdf;Integrated Security=True;Connect Timeout=30";
             SqlConnection yhteys = new SqlConnection(polku);
@@ -41,6 +41,33 @@ namespace Sovelluskehitys2024
             tuotelista.ItemsSource = dt.DefaultView;
 
             yhteys.Close();
+        }
+        private void PaivitaComboBox(object sender, RoutedEventArgs e)
+        {
+            string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2200423\\Documents\\testitietokanta.mdf;Integrated Security=True;Connect Timeout=30";
+            SqlConnection yhteys = new SqlConnection(polku);
+            yhteys.Open();
+
+            SqlCommand komento = new SqlCommand("SELECT * FROM tuotteet",yhteys);
+            SqlDataReader lukija = komento.ExecuteReader();
+
+            tuotelista_cb.Items.Clear();
+
+            while (lukija.Read())
+            {
+                tuotelista_cb.Items.Add(lukija.GetString(1));
+
+            }
+            lukija.Close();
+
+            yhteys.Close();
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            PaivitaDataGrid(sender, e);
+            PaivitaComboBox(sender, e);
 
         }
 
@@ -59,6 +86,13 @@ namespace Sovelluskehitys2024
             komento.ExecuteNonQuery();
 
             yhteys.Close();
+
+            PaivitaDataGrid(sender, e);
+
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
 
         }
     }
