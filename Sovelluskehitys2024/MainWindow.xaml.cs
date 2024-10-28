@@ -48,5 +48,18 @@ namespace Sovelluskehitys2024
         {
 
         }
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            string polku = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\k2200423\\Documents\\testitietokanta.mdf;Integrated Security=True;Connect Timeout=30";
+            SqlConnection yhteys = new SqlConnection(polku);
+            yhteys.Open();
+
+            string kysely = "INSERT INTO tuotteet (nimi, hinta) VALUES ('" + tuotenimi.Text + "'," + tuotehinta.Text + ")";
+            SqlCommand komento = new SqlCommand(kysely,yhteys);
+            komento.ExecuteNonQuery();
+
+            yhteys.Close();
+
+        }
     }
 }
