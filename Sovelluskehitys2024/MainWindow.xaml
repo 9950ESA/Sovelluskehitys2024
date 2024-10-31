@@ -16,7 +16,5 @@
         <TextBox x:Name="tuotehinta" HorizontalAlignment="Left" Margin="585,115,0,0" TextWrapping="Wrap" Text="b" VerticalAlignment="Top" Width="180" Height="31"/>
         <ComboBox x:Name="tuotelista_cb" HorizontalAlignment="Left" Margin="599,285,0,0" VerticalAlignment="Top" Width="126" Height="27"/>
         <Button Content="Poista tuote" HorizontalAlignment="Left" Margin="599,339,0,0" VerticalAlignment="Top" Height="37" Width="126" Click="Button_Click_2"/>
-
-
     </Grid>
 </Window>
