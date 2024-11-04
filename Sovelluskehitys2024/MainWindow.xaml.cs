@@ -58,8 +58,6 @@ namespace Sovelluskehitys2024
             tuotelista_cb.DisplayMemberPath = "NIMI";
             tuotelista_cb.SelectedValuePath = "ID";
 
-            tuotelista_cb.Items.Clear();
-
             while (lukija.Read())
             {
                 int id = lukija.GetInt32(0);
