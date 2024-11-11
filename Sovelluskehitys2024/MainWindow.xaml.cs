@@ -25,9 +25,17 @@ namespace Sovelluskehitys2024
         {
             InitializeComponent();
 
-            PaivitaDataGrid("SELECT * FROM tuotteet","tuotteet",tuotelista);
-            PaivitaDataGrid("SELECT * FROM asiakkaat", "asiakkaat", asiakaslista);
-            PaivitaComboBox();
+            try
+            {
+                PaivitaDataGrid("SELECT * FROM tuotteet","tuotteet",tuotelista);
+                PaivitaDataGrid("SELECT * FROM asiakkaat", "asiakkaat", asiakaslista);
+                PaivitaComboBox();
+            }
+            catch
+            {
+                tilaviesti.Text = "Ei tietokantayhteyttä";
+            }
+            
         }
 
         private void PaivitaDataGrid(string kysely, string taulu, DataGrid grid)
