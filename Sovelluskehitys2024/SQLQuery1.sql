@@ -17,6 +17,8 @@ SELECT * FROM tuotteet;
 SELECT * FROM asiakkaat;
 SELECT * FROM tilaukset;
 
+SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id;
+
 DELETE FROM tuotteet WHERE nimi="kinkku";
 
 DROP TABLE tuotteet;
