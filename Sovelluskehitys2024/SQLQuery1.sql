@@ -1,8 +1,9 @@
-﻿﻿CREATE TABLE tuotteet (id INTEGER IDENTITY(1,1) PRIMARY KEY, nimi VARCHAR(50), hinta INTEGER);
+﻿﻿
+CREATE TABLE tuotteet (id INTEGER IDENTITY(1,1) PRIMARY KEY, nimi VARCHAR(50), hinta INTEGER);
 
 CREATE TABLE asiakkaat (id INTEGER IDENTITY(1,1) PRIMARY KEY, nimi VARCHAR(50), osoite VARCHAR(150), puhelin VARCHAR(50));
 
-CREATE TABLE tilaukset (id INTEGER IDENTITY(1,1) PRIMARY KEY, asiakas_id INTEGER REFERENCES asiakkaat ON DELETE CASCADE, tuote_id INTEGER REFERENCES tuotteet ON DELETE CASCADE);
+CREATE TABLE tilaukset (id INTEGER IDENTITY(1,1) PRIMARY KEY, asiakas_id INTEGER REFERENCES asiakkaat ON DELETE CASCADE, tuote_id INTEGER REFERENCES tuotteet ON DELETE CASCADE, toimitettu BIT DEFAULT 0);
 
 INSERT INTO tuotteet (nimi, hinta) VALUES ('juusto', 6);
 INSERT INTO tuotteet (nimi, hinta) VALUES ('peruna', 5);
@@ -21,4 +22,7 @@ SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiak
 
 DELETE FROM tuotteet WHERE nimi="kinkku";
 
+DROP TABLE tilaukset;
 DROP TABLE tuotteet;
+DROP TABLE asiakkaat;
+
