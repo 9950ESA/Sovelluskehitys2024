@@ -1,28 +1,33 @@
-﻿﻿
-CREATE TABLE tuotteet (id INTEGER IDENTITY(1,1) PRIMARY KEY, nimi VARCHAR(50), hinta INTEGER);
-
+﻿
+CREATE TABLE kirjat (id INTEGER IDENTITY(1,1) PRIMARY KEY, nimi VARCHAR(50), vuosi INTEGER, tekija VARCHAR(50));
 CREATE TABLE asiakkaat (id INTEGER IDENTITY(1,1) PRIMARY KEY, nimi VARCHAR(50), osoite VARCHAR(150), puhelin VARCHAR(50));
+CREATE TABLE kopiot (id INTEGER IDENTITY(1,1) PRIMARY KEY, kirja_id INTEGER REFERENCES kirjat(id) ON DELETE CASCADE, maara INTEGER);
+CREATE TABLE lainat (id INTEGER IDENTITY(1,1) PRIMARY KEY, asiakas_id INTEGER REFERENCES asiakkaat(id) ON DELETE CASCADE, kopio_id INTEGER REFERENCES kopiot(id) ON DELETE CASCADE, haettu BIT DEFAULT 0);
 
-CREATE TABLE tilaukset (id INTEGER IDENTITY(1,1) PRIMARY KEY, asiakas_id INTEGER REFERENCES asiakkaat ON DELETE CASCADE, tuote_id INTEGER REFERENCES tuotteet ON DELETE CASCADE, toimitettu BIT DEFAULT 0);
-
-INSERT INTO tuotteet (nimi, hinta) VALUES ('juusto', 6);
-INSERT INTO tuotteet (nimi, hinta) VALUES ('peruna', 5);
+INSERT INTO kirjat (nimi, vuosi, tekija) VALUES ('Python-alkeet', 2020, 'Matti Meikälainen');
+INSERT INTO kirjat (nimi, vuosi, tekija) VALUES ('SQL-perusteet', 2021, 'Mikki Hiiri');
 INSERT INTO asiakkaat (nimi, osoite, puhelin) VALUES ('Masa', 'Kuusikuja 6', '050882682');
 INSERT INTO asiakkaat (nimi, osoite, puhelin) VALUES ('Maija', 'Kampusranta 11', '040345774');
-INSERT INTO tilaukset (asiakas_id, tuote_id) VALUES (1,2);
-INSERT INTO tilaukset (asiakas_id, tuote_id) VALUES (2,1); 
+INSERT INTO kopiot (kirja_id, maara) VALUES (1,5);
+INSERT INTO kopiot (kirja_id, maara) VALUES (2,4);
+INSERT INTO lainat (asiakas_id, kopio_id) VALUES (2,1); 
+INSERT INTO lainat (asiakas_id, kopio_id) VALUES (1,2); 
 
-DELETE FROM tuotteet WHERE id=5;
+SELECT a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id
+FROM asiakkaat a
+JOIN lainat l ON a.id = l.asiakas_id
+JOIN kopiot ko ON l.kopio_id = ko.id
+JOIN kirjat k ON ko.kirja_id = k.id;
 
-SELECT * FROM tuotteet;
+DELETE FROM kirjat WHERE id=1;
+DELETE FROM kirjat WHERE nimi="Python-alkeet";
+
+SELECT * FROM kirjat;
 SELECT * FROM asiakkaat;
-SELECT * FROM tilaukset;
+SELECT * FROM kopiot;
+SELECT * FROM lainat;
 
-SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id;
-
-DELETE FROM tuotteet WHERE nimi="kinkku";
-
-DROP TABLE tilaukset;
-DROP TABLE tuotteet;
+DROP TABLE lainat;
+DROP TABLE kopiot;
+DROP TABLE kirjat;
 DROP TABLE asiakkaat;
-
