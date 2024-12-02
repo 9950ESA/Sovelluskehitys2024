@@ -36,10 +36,11 @@ namespace Sovelluskehitys2024
             {
                 PaivitaDataGrid("SELECT * FROM kirjat","kirjat", kirjalista);
                 PaivitaDataGrid("SELECT * FROM asiakkaat", "asiakkaat", asiakaslista);
-                PaivitaDataGrid("SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id AND ti.haettu='0'", "lainat", lainalista);
-                PaivitaDataGrid("SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id AND ti.haettu='1'", "lainat", lainattulista);
+                PaivitaDataGrid("SELECT * FROM kopiot", "kopiot", kopiolista);
+                PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='0'", "lainat", lainalista);
+                PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='1'", "lainat", lainattulista);
 
-                PaivitaKirjaComboBox();
+                PaivitaKirjaComboBox(kirjalista_cb, kirjalista_cb_2);
                 PaivitaAsiakasComboBox();
             }
             catch
@@ -58,37 +59,42 @@ namespace Sovelluskehitys2024
             komento.CommandText = kysely;
 
             SqlDataAdapter adapteri = new SqlDataAdapter(komento);
-            DataTable dt = new DataTable("kirjat");
+            DataTable dt = new DataTable(taulu);
             adapteri.Fill(dt);
 
             grid.ItemsSource = dt.DefaultView;
 
             yhteys.Close();
         }
-        private void PaivitaKirjaComboBox()
+        private void PaivitaKirjaComboBox(ComboBox kombo1, ComboBox kombo2)
         {
+            //tuotelista_cb.Items.Clear();
+
             SqlConnection yhteys = new SqlConnection(polku);
             yhteys.Open();
 
-            SqlCommand komento = new SqlCommand("SELECT * FROM kirjat",yhteys);
+            SqlCommand komento = new SqlCommand("SELECT * FROM kirjat", yhteys);
             SqlDataReader lukija = komento.ExecuteReader();
 
             DataTable taulu = new DataTable();
             taulu.Columns.Add("ID", typeof(string));
             taulu.Columns.Add("NIMI", typeof(string));
 
-            kirjalista_cb.ItemsSource = taulu.DefaultView;
-            kirjalista_cb.DisplayMemberPath = "NIMI";
-            kirjalista_cb.SelectedValuePath = "ID";
+            /* tehdään sidokset että comboboxissa näytetää datataulua*/
+            kombo1.ItemsSource = taulu.DefaultView;
+            kombo1.DisplayMemberPath = "NIMI";
+            kombo1.SelectedValuePath = "ID";
 
+            kombo2.ItemsSource = taulu.DefaultView;
+            kombo2.DisplayMemberPath = "NIMI";
+            kombo2.SelectedValuePath = "ID";
 
-            while (lukija.Read())
+            while (lukija.Read()) // käsitellään kyselytulos rivi riviltä
             {
                 int id = lukija.GetInt32(0);
                 string nimi = lukija.GetString(1);
-                taulu.Rows.Add(id, nimi);
+                taulu.Rows.Add(id, nimi); // lisätään datatauluun rivi tietoineen
                 //tuotelista_cb.Items.Add(lukija.GetString(1));
-
             }
             lukija.Close();
 
@@ -123,48 +129,60 @@ namespace Sovelluskehitys2024
 
             yhteys.Close();
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void UusiKirjaButton(object sender, RoutedEventArgs e)
         {
-            PaivitaDataGrid("SELECT * FROM kirjat", "kirjat", kirjalista);
-            PaivitaKirjaComboBox();
+            using (SqlConnection yhteys = new SqlConnection(polku))
+            {
+                yhteys.Open();
 
+                string kysely = "INSERT INTO kirjat (nimi, vuosi, tekija) OUTPUT INSERTED.id VALUES (@nimi, @vuosi, @tekija)";
+                SqlCommand komento = new SqlCommand(kysely, yhteys);
+                komento.Parameters.AddWithValue("@nimi", kirjanimi.Text);
+                komento.Parameters.AddWithValue("@vuosi", kirjavuosi.Text);
+                komento.Parameters.AddWithValue("@tekija", kirjatekija.Text);
+
+                int kirja_id = (int)komento.ExecuteScalar();
+
+                string kysely2 = "INSERT INTO kopiot (kirja_id, maara) VALUES (@kirja_id, 3)";
+                SqlCommand komento2 = new SqlCommand(kysely2, yhteys);
+                komento2.Parameters.AddWithValue("@kirja_id", kirja_id);
+                komento2.ExecuteNonQuery();
+
+                yhteys.Close();
+
+                PaivitaDataGrid("SELECT * FROM kirjat", "kirjat", kirjalista);
+                PaivitaDataGrid("SELECT * FROM kopiot", "kopiot", kopiolista);
+                PaivitaKirjaComboBox(kirjalista_cb, kirjalista_cb_2);
+            }
+        }
+        private void PoistaKirjaButton(object sender, RoutedEventArgs e)
+        {
+            using (SqlConnection yhteys = new SqlConnection(polku))
+            {
+                yhteys.Open();
+
+                string id = kirjalista_cb.SelectedValue.ToString();
+
+                // Delete from kopiot table first
+                string kysely1 = "DELETE FROM kopiot WHERE kirja_id=@kirja_id;";
+                SqlCommand komento1 = new SqlCommand(kysely1, yhteys);
+                komento1.Parameters.AddWithValue("@kirja_id", id);
+                komento1.ExecuteNonQuery();
+
+                // Delete from kirjat table
+                string kysely2 = "DELETE FROM kirjat WHERE id=@id;";
+                SqlCommand komento2 = new SqlCommand(kysely2, yhteys);
+                komento2.Parameters.AddWithValue("@id", id);
+                komento2.ExecuteNonQuery();
+
+                yhteys.Close();
+
+                PaivitaDataGrid("SELECT * FROM kirjat", "kirjat", kirjalista);
+                PaivitaKirjaComboBox(kirjalista_cb, kirjalista_cb_2);
+            }
         }
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            SqlConnection yhteys = new SqlConnection(polku);
-            yhteys.Open();
-
-            string kysely = "INSERT INTO kirjat (nimi, vuosi, tekija) VALUES ('" + kirjanimi.Text + "'," + kirjavuosi.Text + ")";
-            SqlCommand komento = new SqlCommand(kysely,yhteys);
-            komento.ExecuteNonQuery();
-            yhteys.Close();
-
-            PaivitaDataGrid("SELECT * FROM kirjat", "kirjat", kirjalista);
-            PaivitaKirjaComboBox();
-        }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-        {
-            SqlConnection yhteys = new SqlConnection(polku);
-            yhteys.Open();
-
-            string id = kirjalista_cb.SelectedValue.ToString();
-            string kysely = "DELETE FROM tuotteet WHERE id='" + id + "';";
-            SqlCommand komento = new SqlCommand(kysely, yhteys);
-            komento.ExecuteNonQuery();
-            yhteys.Close();
-
-            PaivitaDataGrid("SELECT * FROM kirjat", "kirjat", kirjalista);
-            PaivitaKirjaComboBox();
-        }
-
-        private void Button_Click_3(object sender, RoutedEventArgs e)
+        private void LisaaAsiakasButton(object sender, RoutedEventArgs e)
         {
             SqlConnection yhteys = new SqlConnection(polku);
             yhteys.Open();
@@ -178,24 +196,46 @@ namespace Sovelluskehitys2024
             PaivitaAsiakasComboBox();
         }
 
-        private void Button_Click_4(object sender, RoutedEventArgs e)
+        private void LisaaLainaButton(object sender, RoutedEventArgs e)
         {
-            SqlConnection yhteys = new SqlConnection(polku);
-            yhteys.Open();
+            using (SqlConnection yhteys = new SqlConnection(polku))
+            {
+                yhteys.Open();
 
-            string asiakasID = asiakaslista_cb.SelectedValue.ToString();
-            string tuoteID  = kirjalista_cb.SelectedValue.ToString();
+                string asiakasID = asiakaslista_cb.SelectedValue.ToString();
+                string kirja_nimi = kirjalista_cb_2.Text; // Use Text to get the displayed name
 
-            string sql = "INSERT INTO tilaukset (asiakas_id, tuote_id, toimitettu) VALUES ('" + asiakasID + "','" + tuoteID + "',0)";
+                // Query to get the kopio_id from the kopiot table using the kirja_nimi
+                string kopioQuery = @"
+                    SELECT TOP 1 ko.id 
+                    FROM kopiot ko
+                    INNER JOIN kirjat k ON ko.kirja_id = k.id
+                    WHERE k.nimi = @kirja_nimi";
+                SqlCommand kopioCommand = new SqlCommand(kopioQuery, yhteys);
+                kopioCommand.Parameters.AddWithValue("@kirja_nimi", kirja_nimi);
 
-            SqlCommand komento = new SqlCommand(sql, yhteys);
-            komento.ExecuteNonQuery();
-            yhteys.Close();
+                object result = kopioCommand.ExecuteScalar();
+                if (result != null)
+                {
+                    int kopioID = (int)result;
 
-            PaivitaDataGrid("SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id AND ti.haettu='0'", "lainat", lainalista);
+                    // Insert into lainat table using the retrieved kopio_id
+                    string sql = "INSERT INTO lainat (asiakas_id, kopio_id, haettu) VALUES (@asiakas_id, @kopio_id, 0)";
+                    SqlCommand komento = new SqlCommand(sql, yhteys);
+                    komento.Parameters.AddWithValue("@asiakas_id", asiakasID);
+                    komento.Parameters.AddWithValue("@kopio_id", kopioID);
+                    komento.ExecuteNonQuery();
 
+                    yhteys.Close();
+
+                    PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='0'", "lainat", lainalista);
+                }
+                else
+                {
+                    MessageBox.Show("No matching record found for the given book name.");
+                }
+            }
         }
-
         private void laina_haettu_click(object sender, RoutedEventArgs e)
         {
             DataRowView rivinäkymä = (DataRowView)((Button)e.Source).DataContext;
@@ -204,15 +244,15 @@ namespace Sovelluskehitys2024
             SqlConnection yhteys = new SqlConnection(polku);
             yhteys.Open();
 
-            string sql = "UPDATE tilaukset SET toimitettu=1 WHERE id='" + tilaus_id + "';";
+            string sql = "UPDATE lainat SET haettu=1 WHERE id='" + tilaus_id + "';";
 
             SqlCommand komento = new SqlCommand(sql, yhteys);
             komento.ExecuteNonQuery();
 
             yhteys.Close();
 
-            PaivitaDataGrid("SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id AND ti.haettu='0'", "lainat", lainalista);
-            PaivitaDataGrid("SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id AND ti.haettu='1'", "lainat", lainalista);
+            PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='0'", "lainat", lainalista);
+            PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='1'", "lainat", lainattulista);
 
         }
         private void laina_palautettu_click(object sender, RoutedEventArgs e)
@@ -223,15 +263,15 @@ namespace Sovelluskehitys2024
             SqlConnection yhteys = new SqlConnection(polku);
             yhteys.Open();
 
-            string sql = "UPDATE tilaukset SET toimitettu=1 WHERE id='" + tilaus_id + "';";
+            string sql = "DELETE FROM lainat WHERE id='" + tilaus_id + "';";
 
             SqlCommand komento = new SqlCommand(sql, yhteys);
             komento.ExecuteNonQuery();
 
             yhteys.Close();
 
-            PaivitaDataGrid("SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id AND ti.toimitettu='0'", "lainat", lainalista);
-            PaivitaDataGrid("SELECT ti.id as id, a.nimi as asiakas, tu.nimi as tuote FROM tilaukset ti, asiakkaat a, tuotteet tu WHERE a.id=ti.asiakas_id AND tu.id=ti.tuote_id AND ti.toimitettu='1'", "lainat", lainalista);
+            PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='0'", "lainat", lainalista);
+            PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='1'", "lainat", lainattulista);
 
         }
     }

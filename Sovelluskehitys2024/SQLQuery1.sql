@@ -6,18 +6,18 @@ CREATE TABLE lainat (id INTEGER IDENTITY(1,1) PRIMARY KEY, asiakas_id INTEGER RE
 
 INSERT INTO kirjat (nimi, vuosi, tekija) VALUES ('Python-alkeet', 2020, 'Matti Meikälainen');
 INSERT INTO kirjat (nimi, vuosi, tekija) VALUES ('SQL-perusteet', 2021, 'Mikki Hiiri');
+INSERT INTO kirjat (nimi, vuosi, tekija) VALUES ('Aku Ankan taskukirja 17', 1966, 'Aku Ankka');
 INSERT INTO asiakkaat (nimi, osoite, puhelin) VALUES ('Masa', 'Kuusikuja 6', '050882682');
 INSERT INTO asiakkaat (nimi, osoite, puhelin) VALUES ('Maija', 'Kampusranta 11', '040345774');
-INSERT INTO kopiot (kirja_id, maara) VALUES (1,5);
-INSERT INTO kopiot (kirja_id, maara) VALUES (2,4);
+INSERT INTO kopiot (kirja_id, maara) VALUES (1,3);
+INSERT INTO kopiot (kirja_id, maara) VALUES (2,3);
+INSERT INTO kopiot (kirja_id, maara) VALUES (3,3);
 INSERT INTO lainat (asiakas_id, kopio_id) VALUES (2,1); 
-INSERT INTO lainat (asiakas_id, kopio_id) VALUES (1,2); 
+INSERT INTO lainat (asiakas_id, kopio_id) VALUES (1,2);
+INSERT INTO lainat (asiakas_id, kopio_id, haettu) VALUES (1,3,1); 
 
-SELECT a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id
-FROM asiakkaat a
-JOIN lainat l ON a.id = l.asiakas_id
-JOIN kopiot ko ON l.kopio_id = ko.id
-JOIN kirjat k ON ko.kirja_id = k.id;
+SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='0';
+SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='1';
 
 DELETE FROM kirjat WHERE id=1;
 DELETE FROM kirjat WHERE nimi="Python-alkeet";

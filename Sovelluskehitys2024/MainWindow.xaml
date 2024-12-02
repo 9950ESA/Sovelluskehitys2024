@@ -8,17 +8,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_Tiedosto">
-                <MenuItem Header="_Avaa"></MenuItem>
-                <MenuItem Header="_Sulje"></MenuItem>
-                <MenuItem Header="_Tallenna"></MenuItem>
-            </MenuItem>
-            <MenuItem Header="Tietokanta">
-                <MenuItem Header="_Avaa"></MenuItem>
-                <MenuItem Header="_Sulje"></MenuItem>
-            </MenuItem>
-        </Menu>
         <TabControl Margin="0,20,0,0">
             <TabItem Header="Kirjalista">
                 <Grid>
@@ -27,21 +16,26 @@
             </TabItem>
             <TabItem Header="Lisää/poista kirja">
                 <Grid>
-                    <Button Content="Lisää kirja" HorizontalAlignment="Left" Margin="80,220,0,0" VerticalAlignment="Top" Height="37" Width="126" Click="Button_Click_1" Grid.Column="3"/>
+                    <Button Content="Lisää kirja" HorizontalAlignment="Left" Margin="80,220,0,0" VerticalAlignment="Top" Height="37" Width="126" Click="UusiKirjaButton" Grid.Column="3"/>
                     <Label Content="Kirjan nimi" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="Kirjan vuosi" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Grid.Column="2" Grid.ColumnSpan="2"/>
                     <Label Content="Kirjan tekijä" HorizontalAlignment="Left" Margin="10,170,0,0" VerticalAlignment="Top" Grid.Column="2" Grid.ColumnSpan="2"/>
-                    <TextBox x:Name="kirjanimi" HorizontalAlignment="Left" Margin="80,50,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" Height="30" TextChanged="TextBox_TextChanged" Grid.Column="3"/>
+                    <TextBox x:Name="kirjanimi" HorizontalAlignment="Left" Margin="80,50,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" Height="30" Grid.Column="3"/>
                     <TextBox x:Name="kirjavuosi" HorizontalAlignment="Left" Margin="80,110,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" Height="31" Grid.Column="3"/>
                     <TextBox x:Name="kirjatekija" HorizontalAlignment="Left" Margin="80,170,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="180" Height="31" Grid.Column="3"/>
                     <ComboBox x:Name="kirjalista_cb" HorizontalAlignment="Left" Margin="400,100,0,0" VerticalAlignment="Top" Width="126" Height="27" Grid.Column="3"/>
-                    <Button Content="Poista kirja" HorizontalAlignment="Left" Margin="400,220,0,0" VerticalAlignment="Top" Height="37" Width="126" Click="Button_Click_2" Grid.Column="3"/>
+                    <Button Content="Poista kirja" HorizontalAlignment="Left" Margin="400,220,0,0" VerticalAlignment="Top" Height="37" Width="126" Click="PoistaKirjaButton" Grid.Column="3"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Kopiolista">
+                <Grid>
+                    <DataGrid x:Name="kopiolista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="50,50,350,100" Grid.Column="1" Grid.ColumnSpan="2"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Asiakkaat">
                 <Grid>
                     <DataGrid x:Name="asiakaslista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="50,50,350,100"/>
-                    <Button Content="Lisää asiakas" HorizontalAlignment="Left" Margin="620,285,0,0" VerticalAlignment="Top" Height="32" Width="120" Click="Button_Click_3"/>
+                    <Button Content="Lisää asiakas" HorizontalAlignment="Left" Margin="620,285,0,0" VerticalAlignment="Top" Height="32" Width="120" Click="LisaaAsiakasButton"/>
                     <Label Content="Nimi" HorizontalAlignment="Left" Margin="540,100,0,0" VerticalAlignment="Top"/>
                     <Label Content="Osoite" HorizontalAlignment="Left" Margin="540,160,0,0" VerticalAlignment="Top"/>
                     <Label Content="Puhelin" HorizontalAlignment="Left" Margin="540,220,0,0" VerticalAlignment="Top"/>
@@ -52,11 +46,13 @@
             </TabItem>
             <TabItem Header="Lainat">
                 <Grid>
-                    <DataGrid x:Name="lainalista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="50,50,350,100" AutoGenerateColumns="False" >
+                    <DataGrid x:Name="lainalista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="20,50,250,100" AutoGenerateColumns="False" >
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="id" Binding="{Binding Path='id'}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="asiakas" Binding="{Binding Path='asiakas'}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="tuote" Binding="{Binding Path='tuote'}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding id}" />
+                            <DataGridTextColumn Header="Asiakas Nimi" Binding="{Binding asiakas_nimi}" />
+                            <DataGridTextColumn Header="Kirja Nimi" Binding="{Binding kirja_nimi}" />
+                            <DataGridTextColumn Header="Kirja ID" Binding="{Binding kirja_id}" />
+                            <DataGridTextColumn Header="Laina Haettu" Binding="{Binding laina_haettu}" />
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -66,24 +62,26 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button Content="Lisää tilaus" HorizontalAlignment="Left" Margin="620,250,0,0" VerticalAlignment="Top" Height="32" Width="120" Click="Button_Click_4" Grid.Column="1"/>
+                    <Button Content="Lisää laina" HorizontalAlignment="Left" Margin="620,250,0,0" VerticalAlignment="Top" Height="32" Width="120" Click="LisaaLainaButton" Grid.Column="1"/>
                     <Label Content="Asiakas" HorizontalAlignment="Left" Margin="550,100,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-                    <Label Content="Tuote" HorizontalAlignment="Left" Margin="550,160,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <Label Content="Kirja" HorizontalAlignment="Left" Margin="550,160,0,0" VerticalAlignment="Top" Grid.Column="1"/>
                     <ComboBox x:Name="asiakaslista_cb" HorizontalAlignment="Left" Margin="620,100,0,0" VerticalAlignment="Top" Width="120" Grid.Column="1"/>
-                    <ComboBox x:Name="tuotelista_cb_2" HorizontalAlignment="Left" Margin="620,160,0,0" VerticalAlignment="Top" Width="120" Grid.Column="1"/>
+                    <ComboBox x:Name="kirjalista_cb_2" HorizontalAlignment="Left" Margin="620,160,0,0" VerticalAlignment="Top" Width="120" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Lainatut">
                 <Grid>
-                    <DataGrid x:Name="lainattulista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="50,50,350,100" AutoGenerateColumns="False" >
+                    <DataGrid x:Name="lainattulista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="20,50,250,100" AutoGenerateColumns="False" >
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="id" Binding="{Binding Path='id'}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="asiakas" Binding="{Binding Path='asiakas'}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="tuote" Binding="{Binding Path='tuote'}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding id}" />
+                            <DataGridTextColumn Header="Asiakas Nimi" Binding="{Binding asiakas_nimi}" />
+                            <DataGridTextColumn Header="Kirja Nimi" Binding="{Binding kirja_nimi}" />
+                            <DataGridTextColumn Header="Kirja ID" Binding="{Binding kirja_id}" />
+                            <DataGridTextColumn Header="Laina Haettu" Binding="{Binding laina_haettu}" />
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Name="laina_palautett" Content="Palautettu" Click="laina_palautettu_click" />
+                                        <Button Name="laina_palautettu" Content="Palautettu" Click="laina_palautettu_click" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
