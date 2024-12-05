@@ -19,6 +19,8 @@ INSERT INTO lainat (asiakas_id, kopio_id, haettu) VALUES (1,3,1);
 SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='0';
 SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='1';
 
+SELECT k.*, (SELECT COUNT(*) FROM lainat l WHERE l.kopio_id = k.kirja_id) AS Lainassa FROM kopiot k;
+
 DELETE FROM kirjat WHERE id=1;
 DELETE FROM kirjat WHERE nimi="Python-alkeet";
 
