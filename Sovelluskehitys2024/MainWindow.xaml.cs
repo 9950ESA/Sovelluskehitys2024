@@ -36,7 +36,7 @@ namespace Sovelluskehitys2024
             lainattulista.CanUserAddRows = false;
 
             //Laitetaan teemaksi Light.Blue
-            ThemeManager.Current.ChangeTheme(this, "Light.Blue");
+            ThemeManager.Current.ChangeTheme(this, "Light.Green");
 
             try
             {
@@ -226,7 +226,7 @@ namespace Sovelluskehitys2024
             yhteys.Open();
 
             string asiakasID = asiakaslista_cb.SelectedValue.ToString();
-            string kirja_nimi = kirjalista_cb_2.Text; // Kirjan nimi saadaan te
+            string kirja_nimi = kirjalista_cb_2.Text;
 
             // Haetaan kirjan id kirjan nimen perusteella
             string kirjaQuery = "SELECT id FROM kirjat WHERE nimi = @kirja_nimi";
