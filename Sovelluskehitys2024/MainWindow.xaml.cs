@@ -43,7 +43,7 @@ namespace Sovelluskehitys2024
                 //Datagridien ja comboboxien päivitys
                 PaivitaDataGrid("SELECT * FROM kirjat","kirjat", kirjalista);
                 PaivitaDataGrid("SELECT * FROM asiakkaat", "asiakkaat", asiakaslista);
-                PaivitaDataGrid(@"SELECT k.*, (SELECT COUNT(*) FROM lainat l WHERE l.kopio_id = k.kirja_id) AS Lainassa FROM kopiot k", "kopiot", kopiolista);
+                PaivitaDataGrid("SELECT k.*, (SELECT COUNT(*) FROM lainat l WHERE l.kopio_id = k.kirja_id) AS Lainassa FROM kopiot k", "kopiot", kopiolista);
                 PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='0'", "lainat", lainalista);
                 PaivitaDataGrid("SELECT l.id AS id, a.nimi AS asiakas_nimi, k.nimi AS kirja_nimi, ko.kirja_id, l.haettu AS laina_haettu FROM asiakkaat a, lainat l, kopiot ko, kirjat k WHERE a.id = l.asiakas_id AND l.kopio_id = ko.id AND ko.kirja_id = k.id AND l.haettu='1'", "lainat", lainattulista);
 

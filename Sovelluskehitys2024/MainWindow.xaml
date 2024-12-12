@@ -30,6 +30,7 @@
             <TabItem Header="Kopiolista">
                 <Grid>
                     <DataGrid x:Name="kopiolista" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="50,50,350,100" Grid.Column="1" Grid.ColumnSpan="2"/>
+                
                 </Grid>
             </TabItem>
             <TabItem Header="Asiakkaat">
